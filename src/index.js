@@ -7,6 +7,7 @@ import { createStore, applyMiddleware } from "redux";
 import rootReducer from "./reducers/Reducer";
 
 import Search from "./components/Search";
+import Results from "./components/Results"
 
 import "./styles.css";
 
@@ -25,6 +26,7 @@ class App extends Component {
     return (
       <div className="app">
         <Search />
+        <Results />
       </div>
     );
   }

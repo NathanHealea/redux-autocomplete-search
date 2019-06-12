@@ -8,6 +8,7 @@ import { withStyles, TextField, MenuItem, Paper } from "@material-ui/core";
 import { setSearch } from "../actions/Search";
 import { fetchCatalog } from "../actions/Catalog";
 import { setSuggestions } from "../actions/Suggestions";
+import { fetchCards } from "../actions/Cards"
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -29,6 +30,9 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
     setSuggestions: (suggestions) => {
       dispatch(setSuggestions(suggestions))
+    },
+    fetchCards: (cardname) => {
+      dispatch(fetchCards(cardname));
     }
   };
 };
@@ -154,6 +158,12 @@ class Search extends Component {
 
     };
 
+    const handleSuggestionSelected = (event, { suggestion, }) => {
+
+      this.props.fetchCards(suggestion);
+
+    }
+
     const handleChange = name => (event, { newValue }) => {
       // this.setState({
       //   ...this.state,
@@ -167,8 +177,9 @@ class Search extends Component {
       suggestions: suggestions,
       onSuggestionsFetchRequested: handleSuggestionsFetchRequested,
       onSuggestionsClearRequested: handleSuggestionsClearRequested,
+      onSuggestionSelected: handleSuggestionSelected,
       getSuggestionValue,
-      renderSuggestion
+      renderSuggestion,
     };
 
     if (error) {

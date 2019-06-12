@@ -5,6 +5,12 @@ import {
   FETCH_CATALOG_FAILURE
 } from "../actions/Catalog";
 
+import {
+  FETCH_CARDS_BEGIN,
+  FETCH_CARDS_SUCCESS,
+  FETCH_CARDS_FAILURE
+} from "../actions/Cards";
+
 import { SET_SUGGESTIONS } from "../actions/Suggestions"
 
 function search(state = "", action) {
@@ -77,10 +83,47 @@ function suggestions(
   }
 }
 
+function cards(
+  state = {
+    items: [],
+    loading: false,
+    error: null
+  },
+  action
+) {
+  switch (action.type) {
+    case FETCH_CARDS_BEGIN:
+      return {
+        ...state,
+        loading: true,
+        error: null
+      };
+
+    case FETCH_CARDS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        items: action.payload
+      };
+
+    case FETCH_CARDS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+        items: []
+      };
+
+    default:
+      return state;
+  }
+}
+
 export default function rootReducer(state = {}, action) {
   return {
     search: search(state.search, action),
     catalog: catalog(state.catalog, action),
-    suggestions: suggestions(state.suggestions, action)
+    suggestions: suggestions(state.suggestions, action),
+    cards: cards(state.results, action)
   };
 }
