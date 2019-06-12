@@ -7,13 +7,15 @@ import parse from "autosuggest-highlight/parse";
 import { withStyles, TextField, MenuItem, Paper } from "@material-ui/core";
 import { setSearch } from "../actions/Search";
 import { fetchCatalog } from "../actions/Catalog";
+import { setSuggestions } from "../actions/Suggestions";
 
 const mapStateToProps = (state, ownProps) => {
   return {
     search: state.search,
     error: state.catalog.error,
     catalog: state.catalog.items,
-    loading: state.catalog.loading
+    loading: state.catalog.loading,
+    suggestions: state.suggestions
   };
 };
 
@@ -24,12 +26,15 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     },
     initCatalog: () => {
       dispatch(fetchCatalog());
+    },
+    setSuggestions: (suggestions) => {
+      dispatch(setSuggestions(suggestions))
     }
   };
 };
 
 function renderInputComponent(inputProps) {
-  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
+  const { classes, inputRef = () => { }, ref, ...other } = inputProps;
 
   return (
     <TextField
@@ -49,8 +54,8 @@ function renderInputComponent(inputProps) {
 }
 
 function renderSuggestion(suggestion, { query, isHighlighted }) {
-  const matches = match(suggestion.label, query);
-  const parts = parse(suggestion.label, matches);
+  const matches = match(suggestion, query);
+  const parts = parse(suggestion, matches);
 
   return (
     <MenuItem selected={isHighlighted} component="div">
@@ -76,15 +81,15 @@ function getSuggestions(value, catalog) {
   return inputLength === 0
     ? []
     : catalog.filter(item => {
-        const keep =
-          count < 5 && item.slice(0, inputLength).toLowerCase() === inputValue;
+      const keep =
+        count < 5 && item.slice(0, inputLength).toLowerCase() === inputValue;
 
-        if (keep) {
-          count += 1;
-        }
+      if (keep) {
+        count += 1;
+      }
 
-        return keep;
-      });
+      return keep;
+    });
 }
 
 function getSuggestionValue(item) {
@@ -122,7 +127,7 @@ const styles = theme => ({
 class Search extends Component {
   state = {
     anchorEl: null,
-    suggestion: [],
+    // suggestion: [],
     single: "",
     popper: ""
   };
@@ -132,18 +137,21 @@ class Search extends Component {
   }
 
   render() {
-    const { classes, search, setSearch, error, loading, catalog } = this.props;
+    const { classes, search, setSearch, error, loading, catalog, suggestions } = this.props;
 
     const handleSuggestionsFetchRequested = ({ value }) => {
-      this.setState({
-        suggestions: getSuggestions(value, catalog)
-      });
+      // this.setState({
+      //   suggestions: getSuggestions(value, catalog)
+      // });
+      this.props.setSuggestions(getSuggestions(value, catalog))
     };
 
     const handleSuggestionsClearRequested = () => {
-      this.setState({
-        suggestion: []
-      });
+      // this.setState({
+      //   suggestion: []
+      // });
+      this.props.setSuggestions([])
+
     };
 
     const handleChange = name => (event, { newValue }) => {
@@ -156,7 +164,7 @@ class Search extends Component {
 
     const autosuggestProps = {
       renderInputComponent,
-      suggestions: catalog,
+      suggestions: suggestions,
       onSuggestionsFetchRequested: handleSuggestionsFetchRequested,
       onSuggestionsClearRequested: handleSuggestionsClearRequested,
       getSuggestionValue,

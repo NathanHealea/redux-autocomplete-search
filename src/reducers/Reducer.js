@@ -5,6 +5,8 @@ import {
   FETCH_CATALOG_FAILURE
 } from "../actions/Catalog";
 
+import { SET_SUGGESTIONS } from "../actions/Suggestions"
+
 function search(state = "", action) {
   switch (action.type) {
     case SET_SEARCH:
@@ -63,9 +65,22 @@ function catalog(
   }
 }
 
+function suggestions(
+  state = [],
+  action
+) {
+  switch (action.type) {
+    case SET_SUGGESTIONS:
+      return action.payload
+    default:
+      return state
+  }
+}
+
 export default function rootReducer(state = {}, action) {
   return {
     search: search(state.search, action),
-    catalog: catalog(state.catalog, action)
+    catalog: catalog(state.catalog, action),
+    suggestions: suggestions(state.suggestions, action)
   };
 }
