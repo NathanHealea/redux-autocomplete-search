@@ -1,0 +1,213 @@
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import deburr from "lodash/deburr";
+import Autosuggest from "react-autosuggest";
+import match from "autosuggest-highlight/match";
+import parse from "autosuggest-highlight/parse";
+import { withStyles, TextField, MenuItem, Paper } from "@material-ui/core";
+import { setSearch } from "../actions/Search";
+import { fetchCatalog } from "../actions/Catalog";
+
+const mapStateToProps = (state, ownProps) => {
+  return {
+    search: state.search,
+    error: state.catalog.error,
+    catalog: state.catalog.items,
+    loading: state.catalog.loading
+  };
+};
+
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    setSearch: value => {
+      dispatch(setSearch(value));
+    },
+    initCatalog: () => {
+      dispatch(fetchCatalog());
+    }
+  };
+};
+
+function renderInputComponent(inputProps) {
+  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
+
+  return (
+    <TextField
+      fullWidth
+      InputProps={{
+        inputRef: node => {
+          ref(node);
+          inputRef(node);
+        },
+        classes: {
+          input: classes.input
+        }
+      }}
+      {...other}
+    />
+  );
+}
+
+function renderSuggestion(suggestion, { query, isHighlighted }) {
+  const matches = match(suggestion.label, query);
+  const parts = parse(suggestion.label, matches);
+
+  return (
+    <MenuItem selected={isHighlighted} component="div">
+      <div>
+        {parts.map(part => (
+          <span
+            key={part.text}
+            style={{ fontWeight: part.highlight ? 500 : 400 }}
+          >
+            {part.text}
+          </span>
+        ))}
+      </div>
+    </MenuItem>
+  );
+}
+
+function getSuggestions(value, catalog) {
+  const inputValue = deburr(value.trim()).toLowerCase();
+  const inputLength = inputValue.length;
+  let count = 0;
+
+  return inputLength === 0
+    ? []
+    : catalog.filter(item => {
+        const keep =
+          count < 5 && item.slice(0, inputLength).toLowerCase() === inputValue;
+
+        if (keep) {
+          count += 1;
+        }
+
+        return keep;
+      });
+}
+
+function getSuggestionValue(item) {
+  return item;
+}
+
+const styles = theme => ({
+  root: {
+    height: 250,
+    flexGrow: 1
+  },
+  container: {
+    position: "relative"
+  },
+  suggestionsContainerOpen: {
+    position: "absolute",
+    zIndex: 1,
+    marginTop: theme.spacing(1),
+    left: 0,
+    right: 0
+  },
+  suggestion: {
+    display: "block"
+  },
+  suggestionsList: {
+    margin: 0,
+    padding: 0,
+    listStyleType: "none"
+  },
+  divider: {
+    height: theme.spacing(2)
+  }
+});
+
+class Search extends Component {
+  state = {
+    anchorEl: null,
+    suggestion: [],
+    single: "",
+    popper: ""
+  };
+
+  componentDidMount() {
+    this.props.initCatalog();
+  }
+
+  render() {
+    const { classes, search, setSearch, error, loading, catalog } = this.props;
+
+    const handleSuggestionsFetchRequested = ({ value }) => {
+      this.setState({
+        suggestions: getSuggestions(value, catalog)
+      });
+    };
+
+    const handleSuggestionsClearRequested = () => {
+      this.setState({
+        suggestion: []
+      });
+    };
+
+    const handleChange = name => (event, { newValue }) => {
+      // this.setState({
+      //   ...this.state,
+      //   [name]: newValue
+      // });
+      setSearch(newValue);
+    };
+
+    const autosuggestProps = {
+      renderInputComponent,
+      suggestions: catalog,
+      onSuggestionsFetchRequested: handleSuggestionsFetchRequested,
+      onSuggestionsClearRequested: handleSuggestionsClearRequested,
+      getSuggestionValue,
+      renderSuggestion
+    };
+
+    if (error) {
+      return (
+        <div>
+          <p>Error</p>
+          <p>{JSON.stringify(error)}</p>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return <p>Loading..</p>;
+    }
+
+    return (
+      <div className={classes.root}>
+        <Autosuggest
+          {...autosuggestProps}
+          inputProps={{
+            classes,
+            id: "search-card-name",
+            label: "Card Name",
+            placeholder: "Search for a card by name",
+            value: search,
+            onChange: handleChange("single")
+          }}
+          theme={{
+            container: classes.container,
+            suggestionsContainerOpen: classes.suggestionsContainerOpen,
+            suggestionsList: classes.suggestionsList,
+            suggestion: classes.suggestion
+          }}
+          renderSuggestionsContainer={options => (
+            <Paper {...options.containerProps} square>
+              {options.children}
+            </Paper>
+          )}
+        />
+      </div>
+    );
+  }
+}
+
+const StatefulSearch = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Search);
+
+export default withStyles(styles)(StatefulSearch);
