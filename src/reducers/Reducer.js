@@ -1,19 +1,19 @@
-import { SET_SEARCH, CLEAR_SEARCH } from "../actions/Search";
+import { SET_SEARCH, CLEAR_SEARCH } from '../actions/Search';
 import {
   FETCH_CATALOG_BEGIN,
   FETCH_CATALOG_SUCCESS,
   FETCH_CATALOG_FAILURE
-} from "../actions/Catalog";
+} from '../actions/Catalog';
 
 import {
   FETCH_CARDS_BEGIN,
   FETCH_CARDS_SUCCESS,
   FETCH_CARDS_FAILURE
-} from "../actions/Cards";
+} from '../actions/Cards';
 
-import { SET_SUGGESTIONS } from "../actions/Suggestions"
+import { SET_SUGGESTIONS } from '../actions/Suggestions';
 
-function search(state = "", action) {
+function search(state = '', action) {
   switch (action.type) {
     case SET_SEARCH:
       return action.payload;
@@ -71,15 +71,12 @@ function catalog(
   }
 }
 
-function suggestions(
-  state = [],
-  action
-) {
+function suggestions(state = [], action) {
   switch (action.type) {
     case SET_SUGGESTIONS:
-      return action.payload
+      return action.payload;
     default:
-      return state
+      return state;
   }
 }
 
@@ -110,7 +107,7 @@ function cards(
       return {
         ...state,
         loading: false,
-        error: action.payload.error,
+        error: action.payload,
         items: []
       };
 

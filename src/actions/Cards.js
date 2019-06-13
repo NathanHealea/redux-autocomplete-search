@@ -1,46 +1,71 @@
-import axios from "axios";
-import deburr from "lodash/deburr";
+import axios from 'axios';
+import deburr from 'lodash/deburr';
+import update from 'immutability-helper';
+import { isConstructorDeclaration } from 'typescript';
 
-export const FETCH_CARDS_BEGIN = "FETCH_CARDS_BEGIN";
-export const FETCH_CARDS_SUCCESS = "FETCH_CARDS_SUCCESS";
-export const FETCH_CARDS_FAILURE = "FETCH_CARDS_FAILURE";
+export const FETCH_CARDS_BEGIN = 'FETCH_CARDS_BEGIN';
+export const FETCH_CARDS_SUCCESS = 'FETCH_CARDS_SUCCESS';
+export const FETCH_CARDS_FAILURE = 'FETCH_CARDS_FAILURE';
+
+const CARD_LIST = [];
 
 function getCards(cardname) {
-  console.log("getCards");
-  return axios(`https://api.scryfall.com/cards/search?unique=prints&q=${encodeURI(deburr(cardname.trim()).toLowerCase().replace(/\s+/g, '-'))}`)
-    ;
+  return axios.get(
+    `https://api.scryfall.com/cards/search?unique=prints&q=${encodeURI(
+      `"${deburr(cardname.trim()).toLowerCase()}"`
+      // .replace(/\s+/g, '-')
+    )}`
+  );
 }
 
-function fetchAdditionalCards(url) {
-  return dispatch => {
-    dispatch(fetchAdditionalCardsBegin())
+async function getAdditionalCards(url, dispatch) {
+  let cards = [];
+  let response = null;
 
-    return axios(url)
-      .then(response => {
-
-      })
+  try {
+    response = await axios.get(url);
+  } catch (error) {
+    dispatch(fetchCardsFailure(error));
   }
+
+  if (response.status !== 200) {
+    dispatch(fetchCardsFailure(response.status));
+  }
+
+  if (response.data.has_more) {
+    try {
+      cards = await getAdditionalCards(response.data.next_page, dispatch);
+    } catch (error) {
+      dispatch(fetchCardsFailure(error));
+    }
+  }
+
+  return update(cards, { $push: response.data.data });
 }
 
-export function fetchCards(cardname, page = 1) {
+export function fetchCards(cardname) {
   return dispatch => {
     dispatch(fetchCardsBegin());
 
     return getCards(cardname)
       .then(response => {
-
-        if (response.state === 200 && response.data.has_more) {
-          dispatch(fetchAdditionalCards(response.data.next_page))
-        } else {
-          if (response.status === 200) {
-            dispatch(fetchCardsSuccess(response.data.data));
-
-          } else {
-            dispatch(fetchCardsFailure("An unknown error occured"));
-          }
+        if (response.status !== 200) {
+          dispatch(fetchCardsFailure(response.status));
         }
 
-
+        if (response.data.has_more) {
+          getAdditionalCards(response.data.next_page, dispatch)
+            .then(cards => {
+              dispatch(
+                fetchCardsSuccess(update(cards, { $push: response.data.data }))
+              );
+            })
+            .catch(error => {
+              dispatch(fetchCardsFailure(error));
+            });
+        } else {
+          dispatch(fetchCardsSuccess(response.data.data));
+        }
       })
       .catch(error => {
         dispatch(fetchCardsFailure(error));
