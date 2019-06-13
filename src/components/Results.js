@@ -1,34 +1,24 @@
-import React, { Component } from 'react'
-import { connect } from "react-redux";
-import { withStyles } from "@material-ui/core"
-
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { withStyles, List, ListItem, ListItemText } from '@material-ui/core';
 
 const mapStateToProps = (state, ownProps) => {
   return {
     error: state.cards.error,
     list: state.cards.items,
-    loading: state.cards.loading,
+    loading: state.cards.loading
   };
 };
 
 const mapDispatchToProps = (dispatch, ownProps) => {
-  return {
-
-  };
+  return {};
 };
 
-const styles = theme => ({
-
-})
-
-
+const styles = theme => ({});
 
 class Results extends Component {
-
-
   render() {
-
-    const { classes, list, error, loading } = this.props
+    const { classes, list, error, loading } = this.props;
 
     if (error) {
       return (
@@ -44,13 +34,23 @@ class Results extends Component {
     }
 
     return (
-      list.map(card => {
-        return <img src={card.image_uris.small} />
-      })
-    )
+      <List>
+        {list.map(card => {
+          return (
+            <ListItem key={card.id}>
+              <ListItemText
+                primary={`${card.name} - ${card.type_line}`}
+                secondary={`${card.rarity} - ${card.set_name}`}
+              />
+            </ListItem>
+          );
+
+          // return <img src={card.image_uris.small} />
+        })}
+      </List>
+    );
   }
 }
-
 
 const StatefulResults = connect(
   mapStateToProps,

@@ -1,14 +1,14 @@
-import React, { Component } from "react";
-import { connect } from "react-redux";
-import deburr from "lodash/deburr";
-import Autosuggest from "react-autosuggest";
-import match from "autosuggest-highlight/match";
-import parse from "autosuggest-highlight/parse";
-import { withStyles, TextField, MenuItem, Paper } from "@material-ui/core";
-import { setSearch } from "../actions/Search";
-import { fetchCatalog } from "../actions/Catalog";
-import { setSuggestions } from "../actions/Suggestions";
-import { fetchCards } from "../actions/Cards"
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import deburr from 'lodash/deburr';
+import Autosuggest from 'react-autosuggest';
+import match from 'autosuggest-highlight/match';
+import parse from 'autosuggest-highlight/parse';
+import { withStyles, TextField, MenuItem, Paper } from '@material-ui/core';
+import { setSearch } from '../actions/Search';
+import { fetchCatalog } from '../actions/Catalog';
+import { setSuggestions } from '../actions/Suggestions';
+import { fetchCards } from '../actions/Cards';
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -28,17 +28,17 @@ const mapDispatchToProps = (dispatch, ownProps) => {
     initCatalog: () => {
       dispatch(fetchCatalog());
     },
-    setSuggestions: (suggestions) => {
-      dispatch(setSuggestions(suggestions))
+    setSuggestions: suggestions => {
+      dispatch(setSuggestions(suggestions));
     },
-    fetchCards: (cardname) => {
+    fetchCards: cardname => {
       dispatch(fetchCards(cardname));
     }
   };
 };
 
 function renderInputComponent(inputProps) {
-  const { classes, inputRef = () => { }, ref, ...other } = inputProps;
+  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
 
   return (
     <TextField
@@ -85,15 +85,15 @@ function getSuggestions(value, catalog) {
   return inputLength === 0
     ? []
     : catalog.filter(item => {
-      const keep =
-        count < 5 && item.slice(0, inputLength).toLowerCase() === inputValue;
+        const keep =
+          count < 5 && item.slice(0, inputLength).toLowerCase() === inputValue;
 
-      if (keep) {
-        count += 1;
-      }
+        if (keep) {
+          count += 1;
+        }
 
-      return keep;
-    });
+        return keep;
+      });
 }
 
 function getSuggestionValue(item) {
@@ -106,22 +106,22 @@ const styles = theme => ({
     flexGrow: 1
   },
   container: {
-    position: "relative"
+    position: 'relative'
   },
   suggestionsContainerOpen: {
-    position: "absolute",
+    position: 'absolute',
     zIndex: 1,
     marginTop: theme.spacing(1),
     left: 0,
     right: 0
   },
   suggestion: {
-    display: "block"
+    display: 'block'
   },
   suggestionsList: {
     margin: 0,
     padding: 0,
-    listStyleType: "none"
+    listStyleType: 'none'
   },
   divider: {
     height: theme.spacing(2)
@@ -132,8 +132,8 @@ class Search extends Component {
   state = {
     anchorEl: null,
     // suggestion: [],
-    single: "",
-    popper: ""
+    single: '',
+    popper: ''
   };
 
   componentDidMount() {
@@ -141,34 +141,32 @@ class Search extends Component {
   }
 
   render() {
-    const { classes, search, setSearch, error, loading, catalog, suggestions } = this.props;
+    const {
+      classes,
+      search,
+      setSearch,
+      error,
+      loading,
+      catalog,
+      suggestions
+    } = this.props;
 
     const handleSuggestionsFetchRequested = ({ value }) => {
-      // this.setState({
-      //   suggestions: getSuggestions(value, catalog)
-      // });
-      this.props.setSuggestions(getSuggestions(value, catalog))
+      this.props.setSuggestions(getSuggestions(value, catalog));
     };
 
     const handleSuggestionsClearRequested = () => {
-      // this.setState({
-      //   suggestion: []
-      // });
-      this.props.setSuggestions([])
-
+      this.props.setSuggestions([]);
     };
 
-    const handleSuggestionSelected = (event, { suggestion, }) => {
+    const handleSuggestionSelected = (event, { suggestion }) => {
+      console.log(Date().toString(), 'handleSuggestionSelected', suggestion);
+      if (suggestion !== '') {
+        this.props.fetchCards(suggestion);
+      }
+    };
 
-      this.props.fetchCards(suggestion);
-
-    }
-
-    const handleChange = name => (event, { newValue }) => {
-      // this.setState({
-      //   ...this.state,
-      //   [name]: newValue
-      // });
+    const handleChange = (event, { newValue }) => {
       setSearch(newValue);
     };
 
@@ -179,7 +177,7 @@ class Search extends Component {
       onSuggestionsClearRequested: handleSuggestionsClearRequested,
       onSuggestionSelected: handleSuggestionSelected,
       getSuggestionValue,
-      renderSuggestion,
+      renderSuggestion
     };
 
     if (error) {
@@ -201,11 +199,11 @@ class Search extends Component {
           {...autosuggestProps}
           inputProps={{
             classes,
-            id: "search-card-name",
-            label: "Card Name",
-            placeholder: "Search for a card by name",
+            id: 'search-card-name',
+            label: 'Card Name',
+            placeholder: 'Search for a card by name',
             value: search,
-            onChange: handleChange("single")
+            onChange: handleChange
           }}
           theme={{
             container: classes.container,
