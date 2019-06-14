@@ -1,7 +1,6 @@
 import axios from 'axios';
 import deburr from 'lodash/deburr';
 import update from 'immutability-helper';
-import { isConstructorDeclaration } from 'typescript';
 
 export const FETCH_CARDS_BEGIN = 'FETCH_CARDS_BEGIN';
 export const FETCH_CARDS_SUCCESS = 'FETCH_CARDS_SUCCESS';
@@ -12,7 +11,7 @@ const CARD_LIST = [];
 function getCards(cardname) {
   return axios.get(
     `https://api.scryfall.com/cards/search?unique=prints&q=${encodeURI(
-      `"${deburr(cardname.trim()).toLowerCase()}"`
+      `!"${deburr(cardname).toLowerCase()}"`
       // .replace(/\s+/g, '-')
     )}`
   );
