@@ -121,6 +121,6 @@ export default function rootReducer(state = {}, action) {
     search: search(state.search, action),
     catalog: catalog(state.catalog, action),
     suggestions: suggestions(state.suggestions, action),
-    cards: cards(state.results, action)
+    cards: cards(state.cards, action)
   };
 }
