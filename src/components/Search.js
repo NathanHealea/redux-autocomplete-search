@@ -4,7 +4,13 @@ import deburr from 'lodash/deburr';
 import Autosuggest from 'react-autosuggest';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
-import { withStyles, TextField, MenuItem, Paper } from '@material-ui/core';
+import {
+  withStyles,
+  Typography,
+  TextField,
+  MenuItem,
+  Paper
+} from '@material-ui/core';
 import { setSearch } from '../actions/Search';
 import { fetchCatalog } from '../actions/Catalog';
 import { setSuggestions } from '../actions/Suggestions';
@@ -102,7 +108,7 @@ function getSuggestionValue(item) {
 
 const styles = theme => ({
   root: {
-    height: 250,
+    // height: 250,
     flexGrow: 1
   },
   container: {
@@ -190,7 +196,7 @@ class Search extends Component {
     }
 
     if (loading) {
-      return <p>Loading..</p>;
+      return <Typography>Loading...</Typography>;
     }
 
     return (
