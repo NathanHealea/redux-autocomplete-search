@@ -4,13 +4,17 @@ import deburr from 'lodash/deburr';
 import Autosuggest from 'react-autosuggest';
 import match from 'autosuggest-highlight/match';
 import parse from 'autosuggest-highlight/parse';
+import classNames from 'classnames';
 import {
   withStyles,
   Typography,
   TextField,
+  InputAdornment,
+  IconButton,
   MenuItem,
   Paper
 } from '@material-ui/core';
+import { Clear } from '@material-ui/icons';
 import { setSearch } from '../actions/Search';
 import { fetchCatalog } from '../actions/Catalog';
 import { setSuggestions } from '../actions/Suggestions';
@@ -44,7 +48,12 @@ const mapDispatchToProps = (dispatch, ownProps) => {
 };
 
 function renderInputComponent(inputProps) {
-  const { classes, inputRef = () => {}, ref, ...other } = inputProps;
+  const { classes, inputRef = () => {}, ref, clear, ...other } = inputProps;
+
+  const onClick = () => {
+    console.log('renderInputComponent', 'onClick');
+    setSearch('');
+  };
 
   return (
     <TextField
@@ -56,7 +65,14 @@ function renderInputComponent(inputProps) {
         },
         classes: {
           input: classes.input
-        }
+        },
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton edge="end" aria-label="Clear Input" onClick={clear}>
+              <Clear />
+            </IconButton>
+          </InputAdornment>
+        )
       }}
       {...other}
     />
@@ -114,6 +130,9 @@ const styles = theme => ({
   container: {
     position: 'relative'
   },
+  input: {
+    margin: theme.spacing(1)
+  },
   suggestionsContainerOpen: {
     position: 'absolute',
     zIndex: 1,
@@ -161,12 +180,15 @@ class Search extends Component {
       this.props.setSuggestions(getSuggestions(value, catalog));
     };
 
+    const handleInputClearRequested = () => {
+      this.props.setSearch('');
+      this.props.setSuggestions([]);
+    };
     const handleSuggestionsClearRequested = () => {
       this.props.setSuggestions([]);
     };
 
     const handleSuggestionSelected = (event, { suggestion }) => {
-      console.log(Date().toString(), 'handleSuggestionSelected', suggestion);
       if (suggestion !== '') {
         this.props.fetchCards(suggestion);
       }
@@ -204,12 +226,14 @@ class Search extends Component {
         <Autosuggest
           {...autosuggestProps}
           inputProps={{
-            classes,
+            classes: classNames(classes.input, classes),
             id: 'search-card-name',
             label: 'Card Name',
             placeholder: 'Search for a card by name',
             value: search,
-            onChange: handleChange
+            onChange: handleChange,
+            variant: 'outlined',
+            clear: handleInputClearRequested
           }}
           theme={{
             container: classes.container,
