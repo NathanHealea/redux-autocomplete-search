@@ -1,6 +1,14 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withStyles, List, ListItem, ListItemText } from '@material-ui/core';
+import {
+  withStyles,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton
+} from '@material-ui/core';
+import { Add } from '@material-ui/icons';
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -36,12 +44,44 @@ class Results extends Component {
     return (
       <List>
         {list.map(card => {
+          console.log(
+            card.set_name,
+            card.foil,
+            card.prices.usd_foil,
+            card.foil && card.prices.usd_foil
+          );
           return (
             <ListItem key={card.id}>
               <ListItemText
                 primary={`${card.name} - ${card.type_line}`}
                 secondary={`${card.rarity} - ${card.set_name}`}
               />
+              <ListItemSecondaryAction>
+                <IconButton
+                  color="primary"
+                  edge="end"
+                  aria-label="Add Foil"
+                  disabled={!card.foil || card.prices.usd_foil === null}
+                  onClick={() => {
+                    console.log(`${card.name} - ${card.set_name}: Foil Added`);
+                  }}
+                >
+                  <Add />
+                </IconButton>
+                <IconButton
+                  color="secondary"
+                  edge="end"
+                  aria-label="Add NonFoil"
+                  disabled={!card.nonfoil || card.prices.usd === null}
+                  onClick={() => {
+                    console.log(
+                      `${card.name} - ${card.set_name}: Non Foil Added`
+                    );
+                  }}
+                >
+                  <Add />
+                </IconButton>
+              </ListItemSecondaryAction>
             </ListItem>
           );
 
