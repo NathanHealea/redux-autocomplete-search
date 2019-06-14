@@ -31,6 +31,7 @@ const styles = theme => ({
     position: 'relative'
   },
   ListItem: {
+    paddingLeft: 0,
     paddingRight: 96
   }
 });
@@ -39,23 +40,9 @@ class Results extends Component {
   render() {
     const { classes, list, error, loading } = this.props;
 
-    const _renderRow = ({
-      key, // Unique key within array of rows
-      index, // Index of row within collection
-      isScrolling, // The List is currently being scrolled
-      isVisible, // This row is visible within the List (eg it is not an overscanned row)
-      style // Style object to be applied to row (to position it)
-    }) => {
+    const _renderRow = ({ index, style }) => {
       // get card
       const card = list[index];
-
-      if (!isVisible) {
-        return (
-          <div style={style}>
-            <Typography>Loading...</Typography>
-          </div>
-        );
-      }
 
       // return row
       return (
