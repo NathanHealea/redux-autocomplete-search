@@ -1,15 +1,15 @@
-import React, { Component } from "react";
-import { Provider } from "react-redux";
-import ReactDOM from "react-dom";
-import thunkMiddleware from "redux-thunk";
-import { createLogger } from "redux-logger";
-import { createStore, applyMiddleware } from "redux";
-import rootReducer from "./reducers/Reducer";
+import React, { Component } from 'react';
+import { Provider } from 'react-redux';
+import ReactDOM from 'react-dom';
+import thunkMiddleware from 'redux-thunk';
+import { createLogger } from 'redux-logger';
+import { createStore, applyMiddleware } from 'redux';
+import rootReducer from './reducers/Reducer';
 
-import Search from "./components/Search";
-import Results from "./components/Results"
+import Search from './components/Search';
+import Results from './components/Results';
 
-import "./styles.css";
+import './styles.css';
 
 const loggerMiddleware = createLogger();
 
@@ -32,7 +32,7 @@ class App extends Component {
   }
 }
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById('root');
 
 ReactDOM.render(
   <Provider store={store}>
